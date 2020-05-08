@@ -75,7 +75,6 @@ public class WKTDatatypeTest {
     @Test
     public void testUnparse() {
 
-
         String expResult = "POINT(-83.38 33.95)";
 
         Coordinate coord = new Coordinate(-83.38, 33.95);
@@ -88,8 +87,6 @@ public class WKTDatatypeTest {
 
         String result = WKT_DATATYPE.unparse(geometry);
 
-        //
-        //
         assertEquals(expResult, result);
 
     }
@@ -99,7 +96,6 @@ public class WKTDatatypeTest {
      */
     @Test
     public void testUnparse_srs() {
-
 
         String expResult = "<http://www.opengis.net/def/crs/EPSG/0/4326> POINT(-83.38 33.95)";
 
@@ -113,8 +109,6 @@ public class WKTDatatypeTest {
 
         String result = WKT_DATATYPE.unparse(geometry);
 
-        //
-        //
         assertEquals(expResult, result);
 
     }
@@ -137,8 +131,6 @@ public class WKTDatatypeTest {
 
         GeometryWrapper expResult = new GeometryWrapper(expGeometry, expSRSURI, WKTDatatype.URI, dimensionInfo, lexicalForm);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -161,8 +153,6 @@ public class WKTDatatypeTest {
 
         GeometryWrapper expResult = new GeometryWrapper(expGeometry, expSRSURI, WKTDatatype.URI, dimensionInfo);
 
-        //
-        //
         assertThat(expResult, not(result));
     }
 
@@ -185,8 +175,6 @@ public class WKTDatatypeTest {
 
         GeometryWrapper expResult = new GeometryWrapper(expGeometry, expSRSURI, WKTDatatype.URI, dimensionInfo);
 
-        //
-        //
         assertThat(expResult, not(result));
     }
 
@@ -209,8 +197,6 @@ public class WKTDatatypeTest {
 
         GeometryWrapper expResult = new GeometryWrapper(expGeometry, expSRSURI, WKTDatatype.URI, dimensionInfo);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -233,8 +219,6 @@ public class WKTDatatypeTest {
 
         GeometryWrapper expResult = new GeometryWrapper(expGeometry, expSRSURI, WKTDatatype.URI, dimensionInfo);
 
-        //
-        //
         assertThat(expResult, not(result));
     }
 
@@ -257,8 +241,6 @@ public class WKTDatatypeTest {
 
         GeometryWrapper expResult = new GeometryWrapper(expGeometry, expSRSURI, WKTDatatype.URI, dimensionInfo);
 
-        //
-        //
         assertThat(expResult, not(result));
     }
 
@@ -268,14 +250,12 @@ public class WKTDatatypeTest {
     @Test
     public void testReadPoint() {
 
-        String wktLiteral = "POINT ZM (11.0 12.0 8.0 5.0)";
+        String lexicalForm = "POINT ZM (11.0 12.0 8.0 5.0)";
 
         Geometry geometry = GEOMETRY_FACTORY.createPoint(new CustomCoordinateSequence(CoordinateSequenceDimensions.XYZM, "11.0 12.0 8.0 5.0"));
         GeometryWrapper expResult = new GeometryWrapper(geometry, SRS_URI.DEFAULT_WKT_CRS84, WKTDatatype.URI, new DimensionInfo(4, 3, 0));
-        GeometryWrapper result = WKT_DATATYPE.read(wktLiteral);
+        GeometryWrapper result = WKT_DATATYPE.read(lexicalForm);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -285,14 +265,12 @@ public class WKTDatatypeTest {
     @Test
     public void testReadPoint2() {
 
-        String wktLiteral = "<http://www.opengis.net/def/crs/OGC/1.3/CRS84> POINT ZM(11.0 12.0 8.0 5.0)";
+        String lexicalForm = "<http://www.opengis.net/def/crs/OGC/1.3/CRS84> POINT ZM(11.0 12.0 8.0 5.0)";
 
         Geometry geometry = GEOMETRY_FACTORY.createPoint(new CustomCoordinateSequence(CoordinateSequenceDimensions.XYZM, "11.0 12.0 8.0 5.0"));
-        GeometryWrapper expResult = new GeometryWrapper(geometry, SRS_URI.DEFAULT_WKT_CRS84, WKTDatatype.URI, new DimensionInfo(4, 3, 0), wktLiteral);
-        GeometryWrapper result = WKT_DATATYPE.read(wktLiteral);
+        GeometryWrapper expResult = new GeometryWrapper(geometry, SRS_URI.DEFAULT_WKT_CRS84, WKTDatatype.URI, new DimensionInfo(4, 3, 0), lexicalForm);
+        GeometryWrapper result = WKT_DATATYPE.read(lexicalForm);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -302,14 +280,12 @@ public class WKTDatatypeTest {
     @Test
     public void testReadLineString() {
 
-        String wktLiteral = "LINESTRING ZM (11 12.1 8 5, 3 4 6 2)";
+        String lexicalForm = "LINESTRING ZM (11 12.1 8 5, 3 4 6 2)";
 
         Geometry geometry = GEOMETRY_FACTORY.createLineString(new CustomCoordinateSequence(CoordinateSequenceDimensions.XYZM, "11 12.1 8 5, 3 4 6 2"));
         GeometryWrapper expResult = new GeometryWrapper(geometry, SRS_URI.DEFAULT_WKT_CRS84, WKTDatatype.URI, new DimensionInfo(4, 3, 1));
-        GeometryWrapper result = WKT_DATATYPE.read(wktLiteral);
+        GeometryWrapper result = WKT_DATATYPE.read(lexicalForm);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -319,14 +295,12 @@ public class WKTDatatypeTest {
     @Test
     public void testReadPolygon() {
 
-        String wktLiteral = "POLYGON ZM((30 10 0 1, 40 40 0 1, 20 40 0 1, 10 20 0 1, 30 10 0 1))";
+        String lexicalForm = "POLYGON ZM((30 10 0 1, 40 40 0 1, 20 40 0 1, 10 20 0 1, 30 10 0 1))";
 
         Geometry geometry = GEOMETRY_FACTORY.createPolygon(new CustomCoordinateSequence(CoordinateSequenceDimensions.XYZM, "30 10 0 1, 40 40 0 1, 20 40 0 1, 10 20 0 1, 30 10 0 1"));
-        GeometryWrapper expResult = new GeometryWrapper(geometry, SRS_URI.DEFAULT_WKT_CRS84, WKTDatatype.URI, new DimensionInfo(4, 3, 2), wktLiteral);
-        GeometryWrapper result = WKT_DATATYPE.read(wktLiteral);
+        GeometryWrapper expResult = new GeometryWrapper(geometry, SRS_URI.DEFAULT_WKT_CRS84, WKTDatatype.URI, new DimensionInfo(4, 3, 2), lexicalForm);
+        GeometryWrapper result = WKT_DATATYPE.read(lexicalForm);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -336,17 +310,15 @@ public class WKTDatatypeTest {
     @Test
     public void testReadPolygon2() {
 
-        String wktLiteral = "POLYGON ZM((30 10 0 1, 40 40 0 1, 20 40 0 1, 10 20 0 1, 30 10 0 1), (20 30 0 1, 35 35 0 1, 30 20 0 1, 20 30 0 1))";
+        String lexicalForm = "POLYGON ZM((30 10 0 1, 40 40 0 1, 20 40 0 1, 10 20 0 1, 30 10 0 1), (20 30 0 1, 35 35 0 1, 30 20 0 1, 20 30 0 1))";
 
         LinearRing shell = GEOMETRY_FACTORY.createLinearRing(new CustomCoordinateSequence(CoordinateSequenceDimensions.XYZM, "30 10 0 1, 40 40 0 1, 20 40 0 1, 10 20 0 1, 30 10 0 1"));
         LinearRing[] holes = new LinearRing[]{GEOMETRY_FACTORY.createLinearRing(new CustomCoordinateSequence(CoordinateSequenceDimensions.XYZM, "20 30 0 1, 35 35 0 1, 30 20 0 1, 20 30 0 1"))};
         Geometry geometry = GEOMETRY_FACTORY.createPolygon(shell, holes);
 
         GeometryWrapper expResult = new GeometryWrapper(geometry, SRS_URI.DEFAULT_WKT_CRS84, WKTDatatype.URI, new DimensionInfo(4, 3, 2));
-        GeometryWrapper result = WKT_DATATYPE.read(wktLiteral);
+        GeometryWrapper result = WKT_DATATYPE.read(lexicalForm);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -356,14 +328,12 @@ public class WKTDatatypeTest {
     @Test
     public void testReadMultiPoint() {
 
-        String wktLiteral = "MULTIPOINT ZM((10 40 0 1), (40 30 0 1), (20 20 0 1), (30 10 0 1))";
+        String lexicalForm = "MULTIPOINT ZM((10 40 0 1), (40 30 0 1), (20 20 0 1), (30 10 0 1))";
 
         Geometry geometry = GEOMETRY_FACTORY.createMultiPoint(new CustomCoordinateSequence(CoordinateSequenceDimensions.XYZM, "10 40 0 1, 40 30 0 1, 20 20 0 1, 30 10 0 1"));
         GeometryWrapper expResult = new GeometryWrapper(geometry, SRS_URI.DEFAULT_WKT_CRS84, WKTDatatype.URI, new DimensionInfo(4, 3, 0));
-        GeometryWrapper result = WKT_DATATYPE.read(wktLiteral);
+        GeometryWrapper result = WKT_DATATYPE.read(lexicalForm);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -373,7 +343,7 @@ public class WKTDatatypeTest {
     @Test
     public void testReadMultiLineString() {
 
-        String wktLiteral = "MULTILINESTRING ZM((10 10 0 1, 20 20 0 1, 10 40 0 1), (40 40 0 1, 30 30 0 1, 40 20 0 1, 30 10 0 1))";
+        String lexicalForm = "MULTILINESTRING ZM((10 10 0 1, 20 20 0 1, 10 40 0 1), (40 40 0 1, 30 30 0 1, 40 20 0 1, 30 10 0 1))";
 
         LineString[] lineStrings = new LineString[2];
         lineStrings[0] = GEOMETRY_FACTORY.createLineString(new CustomCoordinateSequence(CoordinateSequenceDimensions.XYZM, "10 10 0 1, 20 20 0 1, 10 40 0 1"));
@@ -381,10 +351,8 @@ public class WKTDatatypeTest {
         Geometry geometry = GEOMETRY_FACTORY.createMultiLineString(lineStrings);
 
         GeometryWrapper expResult = new GeometryWrapper(geometry, SRS_URI.DEFAULT_WKT_CRS84, WKTDatatype.URI, new DimensionInfo(4, 3, 1));
-        GeometryWrapper result = WKT_DATATYPE.read(wktLiteral);
+        GeometryWrapper result = WKT_DATATYPE.read(lexicalForm);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -394,7 +362,7 @@ public class WKTDatatypeTest {
     @Test
     public void testReadMultiPolygon() {
 
-        String wktLiteral = "MULTIPOLYGON ZM(((40 40 0 1, 20 45 0 1, 45 30 0 1, 40 40 0 1)), ((20 35 0 1, 10 30 0 1, 10 10 0 1, 30 5 0 1, 45 20 0 1, 20 35 0 1), (30 20 0 1, 20 15 0 1, 20 25 0 1, 30 20 0 1)))";
+        String lexicalForm = "MULTIPOLYGON ZM(((40 40 0 1, 20 45 0 1, 45 30 0 1, 40 40 0 1)), ((20 35 0 1, 10 30 0 1, 10 10 0 1, 30 5 0 1, 45 20 0 1, 20 35 0 1), (30 20 0 1, 20 15 0 1, 20 25 0 1, 30 20 0 1)))";
 
         Polygon[] polygons = new Polygon[2];
         polygons[0] = GEOMETRY_FACTORY.createPolygon(new CustomCoordinateSequence(CoordinateSequenceDimensions.XYZM, "40 40 0 1, 20 45 0 1, 45 30 0 1, 40 40 0 1"));
@@ -404,10 +372,8 @@ public class WKTDatatypeTest {
         Geometry geometry = GEOMETRY_FACTORY.createMultiPolygon(polygons);
 
         GeometryWrapper expResult = new GeometryWrapper(geometry, SRS_URI.DEFAULT_WKT_CRS84, WKTDatatype.URI, new DimensionInfo(4, 3, 2));
-        GeometryWrapper result = WKT_DATATYPE.read(wktLiteral);
+        GeometryWrapper result = WKT_DATATYPE.read(lexicalForm);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -417,7 +383,7 @@ public class WKTDatatypeTest {
     @Test
     public void testReadGeometryCollection() {
 
-        String wktLiteral = "GEOMETRYCOLLECTION ZM(POINT ZM (4 6 0 1), LINESTRING ZM (4 6 0 1, 7 10 0 1))";
+        String lexicalForm = "GEOMETRYCOLLECTION ZM(POINT ZM (4 6 0 1), LINESTRING ZM (4 6 0 1, 7 10 0 1))";
 
         Geometry[] geometries = new Geometry[2];
         geometries[0] = GEOMETRY_FACTORY.createPoint(new CustomCoordinateSequence(CoordinateSequenceDimensions.XYZM, "4 6 0 1"));
@@ -425,16 +391,15 @@ public class WKTDatatypeTest {
         Geometry geometry = GEOMETRY_FACTORY.createGeometryCollection(geometries);
 
         GeometryWrapper expResult = new GeometryWrapper(geometry, SRS_URI.DEFAULT_WKT_CRS84, WKTDatatype.URI, new DimensionInfo(4, 3, 1));
-        GeometryWrapper result = WKT_DATATYPE.read(wktLiteral);
+        GeometryWrapper result = WKT_DATATYPE.read(lexicalForm);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
     /**
      * Test of empty geometry literal, of class WKTDatatype.<br>
-     * Req 16 An empty geo:gmlLiteral shall be interpreted as an empty geometry.
+     * Req 16 An empty geo:lexicalForm shall be interpreted as an empty
+     * geometry.
      */
     @Test
     public void testEmpty() {
@@ -442,8 +407,6 @@ public class WKTDatatypeTest {
         Geometry test = GEOMETRY_FACTORY.createPoint();
         GeometryWrapper expResult = new GeometryWrapper(test, SRS_URI.DEFAULT_WKT_CRS84, WKTDatatype.URI, new DimensionInfo(2, 2, 0));
 
-        //
-        //
         assertEquals(geo, expResult);
     }
 
