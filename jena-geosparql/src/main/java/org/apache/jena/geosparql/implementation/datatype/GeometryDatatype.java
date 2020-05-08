@@ -67,6 +67,7 @@ public abstract class GeometryDatatype extends BaseDatatype {
         if (!isDatatypesRegistered) {
             TYPE_MAPPER.registerDatatype(WKTDatatype.INSTANCE);
             TYPE_MAPPER.registerDatatype(GMLDatatype.INSTANCE);
+            TYPE_MAPPER.registerDatatype(GeoJsonDatatype.INSTANCE);
             isDatatypesRegistered = true;
         }
     }
