@@ -30,7 +30,7 @@ public enum CoordinateSequenceDimensions {
     XY, XYZ, XYZM, XYM;
 
     public static final CoordinateSequenceDimensions find(Coordinate coordinate) {
-        if (coordinate instanceof CoordinateXY) {
+        if (coordinate instanceof CoordinateXY || coordinate == null) {
             return XY;
         } else if (coordinate instanceof CoordinateXYM) {
             return XYM;

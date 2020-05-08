@@ -39,6 +39,9 @@ public interface Geo {
     public static final Property AS_GML_PROP = ResourceFactory.createProperty(GEO_URI + "asGML");
     public static final Node AS_GML_NODE = AS_GML_PROP.asNode();
 
+    public static final Property AS_GEO_JSON_PROP = ResourceFactory.createProperty(GEO_URI + "asGeoJSON");
+    public static final Node AS_GEO_JSON_NODE = AS_GEO_JSON_PROP.asNode();
+
     public static final Property HAS_DEFAULT_GEOMETRY_PROP = ResourceFactory.createProperty(GEO_URI + "hasDefaultGeometry");
     public static final Node HAS_DEFAULT_GEOMETRY_NODE = HAS_DEFAULT_GEOMETRY_PROP.asNode();
 
@@ -171,4 +174,5 @@ public interface Geo {
     //Geometry Literal Datatypes
     public static final String WKT = GEO_URI + "wktLiteral";
     public static final String GML = GEO_URI + "gmlLiteral";
+    public static final String GEO_JSON = GEO_URI + "geoJsonLiteral";
 }

@@ -21,6 +21,7 @@ import org.apache.jena.geosparql.implementation.GeometryWrapper;
 import org.apache.jena.geosparql.implementation.SRSInfo;
 import org.apache.jena.geosparql.implementation.jts.CoordinateSequenceDimensions;
 import org.apache.jena.geosparql.implementation.jts.CustomCoordinateSequence;
+import org.apache.jena.geosparql.implementation.parsers.ParserWriter;
 import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
@@ -35,7 +36,7 @@ import org.locationtech.jts.geom.Polygon;
  *
  *
  */
-public class WKTWriter {
+public class WKTWriter implements ParserWriter {
 
     public static final String write(GeometryWrapper geometryWrapper) {
 

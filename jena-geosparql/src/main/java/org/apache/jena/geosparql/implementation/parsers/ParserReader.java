@@ -35,4 +35,6 @@ public interface ParserReader {
 
     public DimensionInfo getDimensionInfo();
 
+    // Implementations should also define a function with the signature "public static WKTReader extract(String geometryLiteral) throws DatatypeFormatException;".
+    // ParserReaders are used in the "parse" Datatype method.
 }

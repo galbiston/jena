@@ -21,6 +21,7 @@ import org.apache.jena.datatypes.DatatypeFormatException;
 import org.apache.jena.geosparql.implementation.GeometryWrapper;
 import org.apache.jena.geosparql.implementation.jts.CoordinateSequenceDimensions;
 import org.apache.jena.geosparql.implementation.jts.CustomCoordinateSequence;
+import org.apache.jena.geosparql.implementation.parsers.ParserWriter;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.jdom2.output.XMLOutputter;
@@ -30,7 +31,7 @@ import org.locationtech.jts.geom.*;
  *
  *
  */
-public class GMLWriter {
+public class GMLWriter implements ParserWriter {
 
     public static final Namespace GML_NAMESPACE = Namespace.getNamespace("gml", "http://www.opengis.net/ont/gml");
 

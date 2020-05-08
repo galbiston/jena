@@ -23,4 +23,6 @@ package org.apache.jena.geosparql.implementation.parsers;
  */
 public interface ParserWriter {
 
+    // Implementations only need to define a function with the signature "public static String write(GeometryWrapper geometryWrapper);".
+    // ParserWriters are used in the "unparse" Datatype method.
 }
