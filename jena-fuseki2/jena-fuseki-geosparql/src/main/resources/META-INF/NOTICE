@@ -16,7 +16,7 @@ See https://github.com/HdrHistogram/HdrHistogram/blob/master/LICENSE.txt
 - - - - - - - - - - - - - - - - - - - - - - -
 
 This product bundles "jsonld-java" , which is available under a
-BSD licnese (BSD-3-Clause). See 
+BSD license (BSD-3-Clause). See 
 https://github.com/jsonld-java/jsonld-java/blob/master/LICENCE
 
 - - - - - - - - - - - - - - - - - - - - - - -
@@ -110,8 +110,8 @@ module is selected.
 
  * java.sun.security.ssl
 
-These artifacts replace/modify OpenJDK classes.  The modififications
-are hosted at github and both modified and original are under GPL v2 with 
+These artifacts replace/modify OpenJDK classes.  The modifications
+are hosted at GitHub and both modified and original are under GPL v2 with 
 classpath exceptions.
 http://openjdk.java.net/legal/gplv2+ce.html
 
