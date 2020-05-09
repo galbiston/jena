@@ -70,8 +70,6 @@ public class WKTReaderTest {
         DimensionInfo expResult = new DimensionInfo(2, 2, 0);
         DimensionInfo result = instance.getDimensionInfo();
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -85,8 +83,6 @@ public class WKTReaderTest {
         DimensionInfo expResult = new DimensionInfo(2, 2, 0);
         DimensionInfo result = instance.getDimensionInfo();
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -100,8 +96,6 @@ public class WKTReaderTest {
         DimensionInfo expResult = new DimensionInfo(3, 3, 0);
         DimensionInfo result = instance.getDimensionInfo();
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -115,8 +109,6 @@ public class WKTReaderTest {
         DimensionInfo expResult = new DimensionInfo(3, 2, 0);
         DimensionInfo result = instance.getDimensionInfo();
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -130,8 +122,6 @@ public class WKTReaderTest {
         DimensionInfo expResult = new DimensionInfo(4, 3, 0);
         DimensionInfo result = instance.getDimensionInfo();
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -145,8 +135,6 @@ public class WKTReaderTest {
         Geometry expResult = GEOMETRY_FACTORY.createPoint(new CustomCoordinateSequence(CoordinateSequenceDimensions.XY, "11.0 12.0"));
         Geometry result = instance.getGeometry();
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -160,8 +148,6 @@ public class WKTReaderTest {
         Geometry expResult = GEOMETRY_FACTORY.createPoint(new CustomCoordinateSequence(CoordinateSequenceDimensions.XYZ, "11.0 12.0 8.0"));
         Geometry result = instance.getGeometry();
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -175,8 +161,6 @@ public class WKTReaderTest {
         WKTReader expResult = new WKTReader("point", "", "(11.0 12.0)");
         WKTReader result = WKTReader.extract(wktText);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -190,8 +174,6 @@ public class WKTReaderTest {
         WKTReader expResult = new WKTReader("point", "z", "(11.0 12.0 8.0)");
         WKTReader result = WKTReader.extract(wktText);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -205,8 +187,6 @@ public class WKTReaderTest {
         WKTReader expResult = new WKTReader("point", "m", "(11.0 12.0 5.0)");
         WKTReader result = WKTReader.extract(wktText);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -220,8 +200,6 @@ public class WKTReaderTest {
         WKTReader expResult = new WKTReader("point", "zm", "(11.0 12.0 8.0 5.0)");
         WKTReader result = WKTReader.extract(wktText);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -235,8 +213,6 @@ public class WKTReaderTest {
         WKTReader expResult = new WKTReader("polygon", "", "(30 10, 40 40, 20 40, 10 20, 30 10)");
         WKTReader result = WKTReader.extract(wktText);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -250,8 +226,6 @@ public class WKTReaderTest {
         WKTReader expResult = new WKTReader("polygon", "", "(35 10, 45 45, 15 40, 10 20, 35 10),(20 30, 35 35, 30 20, 20 30)");
         WKTReader result = WKTReader.extract(wktText);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -265,8 +239,6 @@ public class WKTReaderTest {
         WKTReader expResult = new WKTReader("linestring", "", "(30 10, 10 30, 40 40)");
         WKTReader result = WKTReader.extract(wktText);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -280,8 +252,6 @@ public class WKTReaderTest {
         WKTReader expResult = new WKTReader("multipoint", "", "((10 40), (40 30), (20 20), (30 10))");
         WKTReader result = WKTReader.extract(wktText);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -295,8 +265,6 @@ public class WKTReaderTest {
         WKTReader expResult = new WKTReader("multipoint", "", "(10 40, 40 30, 20 20, 30 10)");
         WKTReader result = WKTReader.extract(wktText);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -310,8 +278,6 @@ public class WKTReaderTest {
         WKTReader expResult = new WKTReader("multilinestring", "", "((10 10, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))");
         WKTReader result = WKTReader.extract(wktText);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -325,8 +291,6 @@ public class WKTReaderTest {
         WKTReader expResult = new WKTReader("multipolygon", "", "(((30 20, 45 40, 10 40, 30 20)),((15 5, 40 10, 10 20, 5 10, 15 5)))");
         WKTReader result = WKTReader.extract(wktText);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -340,8 +304,6 @@ public class WKTReaderTest {
         WKTReader expResult = new WKTReader("multipolygon", "", "(((40 40, 20 45, 45 30, 40 40)),((20 35, 10 30, 10 10, 30 5, 45 20, 20 35),(30 20, 20 15, 20 25, 30 20)))");
         WKTReader result = WKTReader.extract(wktText);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -355,8 +317,6 @@ public class WKTReaderTest {
         WKTReader expResult = new WKTReader("geometrycollection", "", "(POINT(4 6),LINESTRING(4 6,7 10), MULTIPOINT((6 8),(2 3)))");
         WKTReader result = WKTReader.extract(wktText);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -372,8 +332,6 @@ public class WKTReaderTest {
         CustomCoordinateSequence pointSequence = new CustomCoordinateSequence(CoordinateSequenceDimensions.XY, "");
         Geometry expResult = GEOMETRY_FACTORY.createPoint(pointSequence);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -389,8 +347,6 @@ public class WKTReaderTest {
         CustomCoordinateSequence pointSequence = new CustomCoordinateSequence(CoordinateSequenceDimensions.XY, "");
         Geometry expResult = GEOMETRY_FACTORY.createLineString(pointSequence);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -406,8 +362,6 @@ public class WKTReaderTest {
         CustomCoordinateSequence pointSequence = new CustomCoordinateSequence(CoordinateSequenceDimensions.XY, "");
         Geometry expResult = GEOMETRY_FACTORY.createPolygon(pointSequence);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -422,8 +376,6 @@ public class WKTReaderTest {
 
         Geometry expResult = GEOMETRY_FACTORY.createMultiPoint(new Point[0]);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -438,8 +390,6 @@ public class WKTReaderTest {
 
         Geometry expResult = GEOMETRY_FACTORY.createMultiLineString(new LineString[0]);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -454,8 +404,6 @@ public class WKTReaderTest {
 
         Geometry expResult = GEOMETRY_FACTORY.createMultiPolygon(new Polygon[0]);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -470,8 +418,6 @@ public class WKTReaderTest {
 
         Geometry expResult = GEOMETRY_FACTORY.createGeometryCollection(new Geometry[0]);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
@@ -489,8 +435,6 @@ public class WKTReaderTest {
         CustomCoordinateSequence pointSequence = new CustomCoordinateSequence(CoordinateSequenceDimensions.XY, "");
         Geometry expResult = GEOMETRY_FACTORY.createPoint(pointSequence);
 
-        //
-        //
         assertEquals(expResult, result);
     }
 
