@@ -22,6 +22,7 @@ import org.apache.jena.atlas.json.JsonNumber;
 import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.geosparql.implementation.GeometryWrapper;
 import org.apache.jena.geosparql.implementation.parsers.ParserWriter;
+import org.apache.jena.geosparql.implementation.vocabulary.SRS_URI;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
@@ -38,43 +39,51 @@ import org.locationtech.jts.geom.Polygon;
  */
 public class GeoJsonWriter implements ParserWriter {
 
+    private static final String DEFAULT_SRS_URI = SRS_URI.DEFAULT_WKT_CRS84;
+    private static final String COORDINATES_PROP = "coordinates";
+    private static final String GEOMETRIES_PROP = "geometries";
+    private static final String TYPE_PROP = "type";
+    private static final String SRS_URI_PROP = "srsURI";
+
     public static final String write(GeometryWrapper geometryWrapper) {
 
         Geometry geometry = geometryWrapper.getParsingGeometry();
         JsonObject jsonObject = extract(geometry);
+
+        String srsURI = geometryWrapper.getSrsURI();
+        if (!srsURI.equals(DEFAULT_SRS_URI)) {
+            jsonObject.put(SRS_URI_PROP, srsURI);
+        }
+
         return jsonObject.toString();
     }
-
-    private static final String TYPE_KEY = "type";
-    private static final String COORDINATES_KEY = "coordinates";
-    private static final String GEOMETRIES_KEY = "geometries";
 
     private static JsonObject extract(final Geometry geometry) {
 
         JsonObject jsonObject = new JsonObject();
         String type = geometry.getGeometryType();
-        jsonObject.put(TYPE_KEY, type);
+        jsonObject.put(TYPE_PROP, type);
         switch (type) {
             case "Point":
-                jsonObject.put(COORDINATES_KEY, extractPoint((Point) geometry));
+                jsonObject.put(COORDINATES_PROP, extractPoint((Point) geometry));
                 break;
             case "LineString":
-                jsonObject.put(COORDINATES_KEY, extractLineString((LineString) geometry));
+                jsonObject.put(COORDINATES_PROP, extractLineString((LineString) geometry));
                 break;
             case "Polygon":
-                jsonObject.put(COORDINATES_KEY, extractPolygon((Polygon) geometry));
+                jsonObject.put(COORDINATES_PROP, extractPolygon((Polygon) geometry));
                 break;
             case "MultiPoint":
-                jsonObject.put(COORDINATES_KEY, extractMultiPoint((MultiPoint) geometry));
+                jsonObject.put(COORDINATES_PROP, extractMultiPoint((MultiPoint) geometry));
                 break;
             case "MultiLineString":
-                jsonObject.put(COORDINATES_KEY, extractMultiLineString((MultiLineString) geometry));
+                jsonObject.put(COORDINATES_PROP, extractMultiLineString((MultiLineString) geometry));
                 break;
             case "MultiPolygon":
-                jsonObject.put(COORDINATES_KEY, extractMultiPolygon((MultiPolygon) geometry));
+                jsonObject.put(COORDINATES_PROP, extractMultiPolygon((MultiPolygon) geometry));
                 break;
             case "GeometryCollection":
-                jsonObject.put(GEOMETRIES_KEY, extractGeometryCollection((GeometryCollection) geometry));
+                jsonObject.put(GEOMETRIES_PROP, extractGeometryCollection((GeometryCollection) geometry));
                 break;
         }
 
@@ -84,6 +93,11 @@ public class GeoJsonWriter implements ParserWriter {
     private static JsonArray extractCoordinate(Coordinate coordinate) {
 
         JsonArray jsonArray = new JsonArray();
+
+        //Empty geometries can have a null coordinate.
+        if (coordinate == null) {
+            return jsonArray;
+        }
         jsonArray.add(JsonNumber.value(coordinate.x));
         jsonArray.add(JsonNumber.value(coordinate.y));
         double zCoord = coordinate.getZ();
@@ -115,13 +129,14 @@ public class GeoJsonWriter implements ParserWriter {
 
         JsonArray poly = new JsonArray();
         JsonArray outer = extractLineString(polygon.getExteriorRing());
-        poly.add(outer);
+        if (!outer.isEmpty()) {
+            poly.add(outer);
 
-        for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
-            JsonArray inner = extractLineString(polygon.getInteriorRingN(i));
-            poly.add(inner);
+            for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
+                JsonArray inner = extractLineString(polygon.getInteriorRingN(i));
+                poly.add(inner);
+            }
         }
-
         return poly;
     }
 
