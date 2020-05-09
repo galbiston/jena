@@ -17,8 +17,13 @@
  */
 package org.apache.jena.geosparql.implementation.parsers.geojson;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.Map;
+import org.apache.jena.atlas.json.JSON;
 import org.apache.jena.atlas.json.JsonArray;
 import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.atlas.json.JsonValue;
@@ -32,6 +37,8 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +58,54 @@ public class GeoJsonSupport {
     private static final String PROPERTIES_KEY = GeoJson.PROPERTIES_KEY;
     private static final String FEATURES_KEY = GeoJson.FEATURES_KEY;
     private static final String FEATURE_KEY = GeoJson.FEATURE_KEY;
+
+    /**
+     * Convert GeoJSON file to GeoSPARQL RDF structure.<br>
+     * Only members of a FeatureCollection will be extracted. This is a minimum
+     * implementation and only extracts from the root object FeatureCollection.
+     *
+     * @param geoJsonFile Target GeoJSON file.
+     * @param baseURI URI root used to generate URI resources and properties.
+     * @return Converted model.
+     */
+    public static final Model convertFile(File geoJsonFile, String baseURI) {
+
+        //Ensure the base URI ends with a seperator character.
+        if (!baseURI.endsWith("/") && !baseURI.endsWith("#")) {
+            baseURI = baseURI + "#";
+        }
+
+        try (FileInputStream input = new FileInputStream(geoJsonFile)) {
+            JsonObject rootObject = JSON.parse(input);
+            return GeoJsonSupport.convert(rootObject, baseURI);
+        } catch (IOException | GeoJsonException ex) {
+            LOGGER.error("{} : {} : {}", ex.getMessage(), geoJsonFile.getAbsolutePath(), baseURI);
+        }
+
+        return ModelFactory.createDefaultModel();
+    }
+
+    /**
+     * Convert GeoJSON file to GeoSPARQL RDF structure and write RDF to
+     * file.<br>
+     * Only members of a FeatureCollection will be extracted.This is a minimum
+     * implementation and only extracts from the root object FeatureCollection.
+     *
+     * @param geoJsonFile Target GeoJSON file.
+     * @param baseURI URI root used to generate URI resources and properties.
+     * @param outputFile Output file path.
+     * @param outputLang Output file serialisation.
+     */
+    public static final void convertFile(File geoJsonFile, String baseURI, File outputFile, Lang outputLang) {
+
+        Model outputModel = convertFile(geoJsonFile, baseURI);
+
+        try (final FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+            RDFDataMgr.write(outputStream, outputModel, outputLang);
+        } catch (IOException ex) {
+            LOGGER.error("Output File IO Exception: {} - {}", outputFile.getAbsolutePath(), ex.getMessage());
+        }
+    }
 
     public static final Model convert(JsonObject rootObject, String baseURI) throws GeoJsonException {
 
