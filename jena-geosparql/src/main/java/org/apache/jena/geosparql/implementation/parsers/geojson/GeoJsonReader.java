@@ -32,6 +32,7 @@ import org.apache.jena.geosparql.implementation.jts.CoordinateSequenceDimensions
 import org.apache.jena.geosparql.implementation.jts.CustomCoordinateSequence;
 import org.apache.jena.geosparql.implementation.jts.CustomGeometryFactory;
 import org.apache.jena.geosparql.implementation.parsers.ParserReader;
+import org.apache.jena.geosparql.implementation.vocabulary.GeoJson;
 import org.apache.jena.geosparql.implementation.vocabulary.SRS_URI;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateSequence;
@@ -63,10 +64,10 @@ public class GeoJsonReader implements ParserReader {
 
     private static final GeometryFactory GEOMETRY_FACTORY = CustomGeometryFactory.theInstance();
     private static final String DEFAULT_SRS_URI = SRS_URI.DEFAULT_WKT_CRS84;
-    private static final String COORDINATES_PROP = "coordinates";
-    private static final String GEOMETRIES_PROP = "geometries";
-    private static final String TYPE_PROP = "type";
-    private static final String SRS_URI_PROP = "srsURI";
+    private static final String COORDINATES_KEY = GeoJson.COORDINATES_KEY;
+    private static final String GEOMETRIES_KEY = GeoJson.GEOMETRIES_KEY;
+    private static final String TYPE_KEY = GeoJson.TYPE_KEY;
+    private static final String SRS_URI_KEY = GeoJson.SRS_URI_KEY;
 
     private final CoordinateSequenceDimensions dims;
     private final Geometry geometry;
@@ -278,17 +279,17 @@ public class GeoJsonReader implements ParserReader {
         while (coordinates.hasNext()) {
 
             JsonObject jsonObject = coordinates.next().getAsObject();
-            if (!jsonObject.hasKey(TYPE_PROP)) {
+            if (!jsonObject.hasKey(TYPE_KEY)) {
                 throw new DatatypeFormatException("GeoJSON object does not have 'type' property.");
             }
 
-            String type = jsonObject.getString(TYPE_PROP);
+            String type = jsonObject.getString(TYPE_KEY);
 
-            if (!jsonObject.hasKey(COORDINATES_PROP)) {
+            if (!jsonObject.hasKey(COORDINATES_KEY)) {
                 throw new DatatypeFormatException("GeoJSON object does not have 'coordinates' or 'geometries' property.");
             }
 
-            Iterator<JsonValue> subCoordinates = jsonObject.getIterator(COORDINATES_PROP);
+            Iterator<JsonValue> subCoordinates = jsonObject.getIterator(COORDINATES_KEY);
 
             Geometry subGeometry = buildGeometry(type, subCoordinates);
             geometries.add(subGeometry);
@@ -304,7 +305,7 @@ public class GeoJsonReader implements ParserReader {
             geometryLiteral = geometryLiteral.replace(" ", "");
 
             // Treat empty string or empty JSON object as an empty point.
-            if (geometryLiteral.isEmpty() || geometryLiteral.equals("{}")) {
+            if (geometryLiteral.isEmpty() || geometryLiteral.equals("{}") || geometryLiteral.equals("null")) {
                 return new GeoJsonReader("Point", new JsonArray().iterator(), DEFAULT_SRS_URI);
             }
 
@@ -318,22 +319,22 @@ public class GeoJsonReader implements ParserReader {
             JsonObject jsonObject = JSON.parse(geometryLiteral);
 
             // Check for 'type' property.
-            if (!jsonObject.hasKey(TYPE_PROP)) {
+            if (!jsonObject.hasKey(TYPE_KEY)) {
                 throw new DatatypeFormatException("GeoJSON GeometryLiteral does not have 'type' property: " + geometryLiteral);
             }
-            String type = jsonObject.getString(TYPE_PROP);
+            String type = jsonObject.getString(TYPE_KEY);
 
             // Extract 'coordinates' or 'geometries' property.
             Iterator<JsonValue> coordinates;
             if (type.equals("GeometryCollection")) {
-                if (jsonObject.hasKey(GEOMETRIES_PROP)) {
-                    coordinates = jsonObject.getIterator(GEOMETRIES_PROP);
+                if (jsonObject.hasKey(GEOMETRIES_KEY)) {
+                    coordinates = jsonObject.getIterator(GEOMETRIES_KEY);
                 } else {
                     throw new DatatypeFormatException("GeoJSON GeometryLiteral GeometryCollection not have 'geometries' property: " + geometryLiteral);
                 }
             } else {
-                if (jsonObject.hasKey(COORDINATES_PROP)) {
-                    coordinates = jsonObject.getIterator(COORDINATES_PROP);
+                if (jsonObject.hasKey(COORDINATES_KEY)) {
+                    coordinates = jsonObject.getIterator(COORDINATES_KEY);
                 } else {
                     throw new DatatypeFormatException("GeoJSON GeometryLiteral does not have 'coordinates' property: " + geometryLiteral);
                 }
@@ -341,8 +342,8 @@ public class GeoJsonReader implements ParserReader {
 
             // Allow a srsURI property to be specified as a foreign member in the geometry.
             String srsURI;
-            if (jsonObject.hasKey(SRS_URI_PROP)) {
-                srsURI = jsonObject.getString(SRS_URI_PROP);
+            if (jsonObject.hasKey(SRS_URI_KEY)) {
+                srsURI = jsonObject.getString(SRS_URI_KEY);
                 // Use default SRS if empty value;
                 if (srsURI.isEmpty()) {
                     srsURI = DEFAULT_SRS_URI;

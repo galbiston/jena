@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.jena.atlas.json.JsonArray;
+import org.apache.jena.atlas.json.JsonNull;
 import org.apache.jena.atlas.json.JsonNumber;
 import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.atlas.json.JsonValue;
@@ -551,6 +552,22 @@ public class GeoJsonReaderTest {
     public void testBuildEmpty() {
 
         GeoJsonReader instance = GeoJsonReader.extract("");
+        Geometry result = instance.getGeometry();
+
+        CustomCoordinateSequence PointSequence = new CustomCoordinateSequence(CoordinateSequenceDimensions.XY, "");
+        Geometry expResult = GEOMETRY_FACTORY.createPoint(PointSequence);
+
+        assertEquals(expResult, result);
+    }
+
+    /**
+     * Test of buildEmpty method, of class GeoJsonReader.<br>
+     */
+    @Test
+    public void testBuildNull() {
+
+        String nullString = JsonNull.instance.toString();
+        GeoJsonReader instance = GeoJsonReader.extract(nullString);
         Geometry result = instance.getGeometry();
 
         CustomCoordinateSequence PointSequence = new CustomCoordinateSequence(CoordinateSequenceDimensions.XY, "");
