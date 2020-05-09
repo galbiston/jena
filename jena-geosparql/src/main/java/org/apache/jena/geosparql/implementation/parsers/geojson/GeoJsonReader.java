@@ -122,10 +122,10 @@ public class GeoJsonReader implements ParserReader {
                     geo = buildGeometryCollection(coordinates);
                     break;
                 default:
-                    throw new DatatypeFormatException("Geometry type not supported: " + geometryType);
+                    throw new DatatypeFormatException("GeoJSON Geometry type not supported: " + geometryType);
             }
         } catch (ArrayIndexOutOfBoundsException ex) {
-            throw new DatatypeFormatException("Build WKT Geometry Exception - Type: " + geometryType + ", Coordinates: " + coordinates + ". " + ex.getMessage());
+            throw new DatatypeFormatException("GeoJSON Build Geometry Exception - Type: " + geometryType + ", Coordinates: " + coordinates + ". " + ex.getMessage());
         }
         return geo;
     }
@@ -148,12 +148,20 @@ public class GeoJsonReader implements ParserReader {
         }
 
         double coordX = iter.next().getAsNumber().value().doubleValue();
+
+        if (!iter.hasNext()) {
+            throw new DatatypeFormatException("GeoJSON Y coordinate not found. X coordinate found: " + coordX);
+        }
         double coordY = iter.next().getAsNumber().value().doubleValue();
 
         Coordinate coord;
         if (iter.hasNext()) {
             double coordZ = iter.next().getAsNumber().value().doubleValue();
             coord = new Coordinate(coordX, coordY, coordZ);
+            if (iter.hasNext()) {
+                double coordM = iter.next().getAsNumber().value().doubleValue();
+                throw new DatatypeFormatException("GeoJSON maximum of three coordinates. Found: " + coordX + ", " + coordY + ", " + coordZ + ", " + coordM);
+            }
         } else {
             coord = new CoordinateXY(coordX, coordY);
         }
@@ -281,19 +289,43 @@ public class GeoJsonReader implements ParserReader {
 
     public static GeoJsonReader extract(String geometryLiteral) throws DatatypeFormatException {
 
+        // Strip all whitespace.
+        geometryLiteral = geometryLiteral.replace(" ", "");
+
+        // Treat empty string or empty JSON object as an empty point.
+        if (geometryLiteral.isEmpty() || geometryLiteral.equals("{}")) {
+            return new GeoJsonReader("Point", new JsonArray().iterator());
+        }
+
+        // Check there is the minimum JSON object.
+        if (!geometryLiteral.startsWith("{")) {
+            throw new DatatypeFormatException("GeoJSON GeometryLiteral does not start with a brace '{': " + geometryLiteral);
+        } else if (!geometryLiteral.endsWith("}")) {
+            throw new DatatypeFormatException("GeoJSON GeometryLiteral does not end with a brace '}': " + geometryLiteral);
+        }
+
         JsonObject jsonObject = JSON.parse(geometryLiteral);
 
+        // Check for 'type' property.
         if (!jsonObject.hasKey("type")) {
-            throw new DatatypeFormatException("GeoJSON object does not have 'type' property.");
+            throw new DatatypeFormatException("GeoJSON GeometryLiteral does not have 'type' property: " + geometryLiteral);
         }
         String type = jsonObject.getString("type");
+
+        // Extract 'coordinates' or 'geometries' property.
         Iterator<JsonValue> coordinates;
-        if (jsonObject.hasKey("coordinates")) {
-            coordinates = jsonObject.getIterator("coordinates");
-        } else if (jsonObject.hasKey("geometries")) {
-            coordinates = jsonObject.getIterator("geometries");
+        if (type.equals("GeometryCollection")) {
+            if (jsonObject.hasKey("geometries")) {
+                coordinates = jsonObject.getIterator("geometries");
+            } else {
+                throw new DatatypeFormatException("GeoJSON GeometryLiteral GeometryCollection not have 'geometries' property: " + geometryLiteral);
+            }
         } else {
-            throw new DatatypeFormatException("GeoJSON object does not have 'coordinates' or 'geometries' property.");
+            if (jsonObject.hasKey("coordinates")) {
+                coordinates = jsonObject.getIterator("coordinates");
+            } else {
+                throw new DatatypeFormatException("GeoJSON GeometryLiteral does not have 'coordinates' property: " + geometryLiteral);
+            }
         }
 
         return new GeoJsonReader(type, coordinates);
