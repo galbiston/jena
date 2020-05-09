@@ -29,14 +29,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+import org.apache.jena.atlas.json.JSON;
+import org.apache.jena.atlas.json.JsonArray;
+import org.apache.jena.atlas.json.JsonObject;
+import org.apache.jena.atlas.json.JsonValue;
 import org.apache.jena.datatypes.DatatypeFormatException;
 import org.apache.jena.datatypes.RDFDatatype;
 import static org.apache.jena.geosparql.configuration.GeoSPARQLConfig.DECIMAL_PLACES_PRECISION;
 import org.apache.jena.geosparql.implementation.GeometryWrapper;
 import org.apache.jena.geosparql.implementation.datatype.GMLDatatype;
+import org.apache.jena.geosparql.implementation.datatype.GeoJsonDatatype;
 import org.apache.jena.geosparql.implementation.datatype.GeometryDatatype;
 import org.apache.jena.geosparql.implementation.datatype.WKTDatatype;
 import org.apache.jena.geosparql.implementation.index.GeometryLiteralIndex;
@@ -64,6 +70,7 @@ import org.apache.jena.reasoner.ReasonerRegistry;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.util.iterator.ExtendedIterator;
+import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.operation.TransformException;
@@ -1198,6 +1205,128 @@ public class GeoSPARQLOperations {
         BigDecimal bigDecimal = new BigDecimal(Double.toString(value));
         bigDecimal = bigDecimal.setScale(DECIMAL_PLACES_PRECISION, RoundingMode.HALF_UP);
         return bigDecimal.doubleValue();
+    }
+
+    /**
+     * Convert GeoJSON file to GeoSPARQL RDF structure.<br>
+     * Only members of a FeatureCollection will be extracted. This is a minimum
+     * implementation and only extracts from the root object FeatureCollection.
+     *
+     * @param geoJsonFile Target GeoJSON file.
+     * @param baseURI URI root used to generate URI resources and properties.
+     * @return Converted model.
+     */
+    public static final Model convertGeoJson(File geoJsonFile, String baseURI) {
+        Model model = ModelFactory.createDefaultModel();
+        model.setNsPrefixes(GeoSPARQL_URI.getPrefixes());
+
+        //Ensure the base URI ends with a seperator character.
+        if (!baseURI.endsWith("/") && !baseURI.endsWith("#")) {
+            baseURI = baseURI + "#";
+        }
+
+        try (FileInputStream input = new FileInputStream(geoJsonFile)) {
+            JsonObject rootObject = JSON.parse(input);
+
+            if (rootObject.hasKey("type") && rootObject.hasKey("features")) {
+
+                JsonArray features = rootObject.get("features").getAsArray();
+                int featureCounter = 0;
+                for (JsonValue featureVal : features) {
+
+                    JsonObject featureObj = featureVal.getAsObject();
+
+                    if (featureObj.hasKey("type") && featureObj.getString("type").equals("Feature")) {
+                        // Construct Feature Resource.
+                        String featureURI;
+                        String featureName;
+                        if (featureObj.hasKey("name")) {
+                            featureName = featureObj.getString("name");
+                        } else {
+                            featureName = "Feature" + featureCounter;
+                            featureCounter++;
+                        }
+                        if (featureObj.hasKey("uri")) {
+                            featureURI = featureObj.getString("uri");
+                        } else {
+                            featureURI = baseURI + featureName;
+                        }
+
+                        Resource feature = ResourceFactory.createResource(featureURI);
+                        feature.addProperty(RDF.type, Geo.FEATURE_RES);
+                        feature.addProperty(ResourceFactory.createProperty(baseURI, "name"), featureName);
+
+                        // Convert the geometry
+                        if (featureObj.hasKey("geometry")) {
+                            Resource geometry = ResourceFactory.createResource(featureURI + "-Geometry");
+                            geometry.addProperty(RDF.type, Geo.GEOMETRY_RES);
+
+                            // Add Feature-Geometry properties.
+                            feature.addProperty(Geo.HAS_GEOMETRY_PROP, geometry);
+                            feature.addProperty(Geo.HAS_DEFAULT_GEOMETRY_PROP, geometry);   // GeoJSON only allows a single Geometry per Feature.
+
+                            // Add GeometryLiteral to the Geometry.
+                            JsonObject geometryObj = featureObj.getObj("geometry");
+                            Literal geoLiteral = ResourceFactory.createTypedLiteral(geometryObj.toString(), GeoJsonDatatype.INSTANCE);
+                            geometry.addLiteral(Geo.AS_GEO_JSON_PROP, geoLiteral);
+                            geometry.addLiteral(Geo.HAS_SERIALIZATION_PROP, geoLiteral);
+                        } else {
+                            LOGGER.error("GeoJSON feature does not have 'geometry' property: {} - {}", geoJsonFile.getAbsolutePath(), featureName);
+                        }
+
+                        // Convert any Properties.
+                        if (featureObj.hasKey("properties")) {
+                            JsonObject propsObj = featureObj.getObj("properties");
+                            for (Entry<String, JsonValue> propObj : propsObj.entrySet()) {
+                                Property prop = ResourceFactory.createProperty(baseURI, propObj.getKey());
+                                JsonValue value = propObj.getValue();
+                                if (value.isBoolean()) {
+                                    feature.addProperty(prop, ResourceFactory.createTypedLiteral(value.getAsBoolean().value()));
+                                } else if (value.isNumber()) {
+                                    feature.addProperty(prop, ResourceFactory.createTypedLiteral(value.getAsNumber().value()));
+                                } else if (value.isString()) {
+                                    feature.addProperty(prop, ResourceFactory.createTypedLiteral(value.getAsString().value()));
+                                } else {
+                                    LOGGER.error("GeoJSON property type not supported: {} - {}", geoJsonFile.getAbsolutePath(), featureName);
+                                }
+                            }
+                        }
+                    } else {
+                        LOGGER.warn("GeoJSON FeatureCollection ignored object without 'type: \"Feature\"': {}", geoJsonFile.getAbsolutePath());
+                    }
+                }
+
+            } else {
+                LOGGER.error("GeoJson 'type' and 'features' not found in root of file: {} ", geoJsonFile.getAbsolutePath());
+            }
+
+        } catch (IOException ex) {
+            LOGGER.error("{} : {} : {}", ex.getMessage(), geoJsonFile.getAbsolutePath(), baseURI);
+        }
+
+        return model;
+    }
+
+    /**
+     * Convert GeoJSON file to GeoSPARQL RDF structure and write RDF to
+     * file.<br>
+     * Only members of a FeatureCollection will be extracted.This is a minimum
+     * implementation and only extracts from the root object FeatureCollection.
+     *
+     * @param geoJsonFile Target GeoJSON file.
+     * @param baseURI URI root used to generate URI resources and properties.
+     * @param outputFile Output file path.
+     * @param outputLang Output file serialisation.
+     */
+    public static final void convertGeoJson(File geoJsonFile, String baseURI, File outputFile, Lang outputLang) {
+
+        Model outputModel = convertGeoJson(geoJsonFile, baseURI);
+
+        try (final FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+            RDFDataMgr.write(outputStream, outputModel, outputLang);
+        } catch (IOException ex) {
+            LOGGER.error("Output File IO Exception: {} - {}", outputFile.getAbsolutePath(), ex.getMessage());
+        }
     }
 
 }
