@@ -32,6 +32,7 @@ import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
+import org.apache.jena.geosparql.implementation.vocabulary.GeoJson;
 
 /**
  *
@@ -40,10 +41,11 @@ import org.locationtech.jts.geom.Polygon;
 public class GeoJsonWriter implements ParserWriter {
 
     private static final String DEFAULT_SRS_URI = SRS_URI.DEFAULT_WKT_CRS84;
-    private static final String COORDINATES_PROP = "coordinates";
-    private static final String GEOMETRIES_PROP = "geometries";
-    private static final String TYPE_PROP = "type";
-    private static final String SRS_URI_PROP = "srsURI";
+
+    private static final String TYPE_KEY = GeoJson.TYPE_KEY;
+    private static final String COORDINATES_KEY = GeoJson.COORDINATES_KEY;
+    private static final String GEOMETRIES_KEY = GeoJson.GEOMETRIES_KEY;
+    private static final String SRS_URI_KEY = GeoJson.SRS_URI_KEY;
 
     public static final String write(GeometryWrapper geometryWrapper) {
 
@@ -52,7 +54,7 @@ public class GeoJsonWriter implements ParserWriter {
 
         String srsURI = geometryWrapper.getSrsURI();
         if (!srsURI.equals(DEFAULT_SRS_URI)) {
-            jsonObject.put(SRS_URI_PROP, srsURI);
+            jsonObject.put(SRS_URI_KEY, srsURI);
         }
 
         return jsonObject.toString();
@@ -62,28 +64,28 @@ public class GeoJsonWriter implements ParserWriter {
 
         JsonObject jsonObject = new JsonObject();
         String type = geometry.getGeometryType();
-        jsonObject.put(TYPE_PROP, type);
+        jsonObject.put(TYPE_KEY, type);
         switch (type) {
             case "Point":
-                jsonObject.put(COORDINATES_PROP, extractPoint((Point) geometry));
+                jsonObject.put(COORDINATES_KEY, extractPoint((Point) geometry));
                 break;
             case "LineString":
-                jsonObject.put(COORDINATES_PROP, extractLineString((LineString) geometry));
+                jsonObject.put(COORDINATES_KEY, extractLineString((LineString) geometry));
                 break;
             case "Polygon":
-                jsonObject.put(COORDINATES_PROP, extractPolygon((Polygon) geometry));
+                jsonObject.put(COORDINATES_KEY, extractPolygon((Polygon) geometry));
                 break;
             case "MultiPoint":
-                jsonObject.put(COORDINATES_PROP, extractMultiPoint((MultiPoint) geometry));
+                jsonObject.put(COORDINATES_KEY, extractMultiPoint((MultiPoint) geometry));
                 break;
             case "MultiLineString":
-                jsonObject.put(COORDINATES_PROP, extractMultiLineString((MultiLineString) geometry));
+                jsonObject.put(COORDINATES_KEY, extractMultiLineString((MultiLineString) geometry));
                 break;
             case "MultiPolygon":
-                jsonObject.put(COORDINATES_PROP, extractMultiPolygon((MultiPolygon) geometry));
+                jsonObject.put(COORDINATES_KEY, extractMultiPolygon((MultiPolygon) geometry));
                 break;
             case "GeometryCollection":
-                jsonObject.put(GEOMETRIES_PROP, extractGeometryCollection((GeometryCollection) geometry));
+                jsonObject.put(GEOMETRIES_KEY, extractGeometryCollection((GeometryCollection) geometry));
                 break;
         }
 
