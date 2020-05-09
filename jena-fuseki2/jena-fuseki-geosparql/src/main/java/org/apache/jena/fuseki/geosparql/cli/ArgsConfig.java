@@ -99,8 +99,12 @@ public class ArgsConfig {
     @Parameter(names = {"--spatial_index", "-si"}, description = "File to load or store the spatial index. Default to " + SPATIAL_INDEX_FILE + " in TDB folder if using TDB and not set. Otherwise spatial index is not stored.", converter = FileConverter.class, order = 16)
     private File spatialIndexFile = null;
 
-    //18) Help
-    @Parameter(names = {"--help", "-h"}, description = "Application help. @path/to/file can be used to submit parameters in a file.", help = true, order = 17)
+    //18) Load geojson file into dataset
+    @Parameter(names = {"--geojson_file", "-gjf"}, description = "Comma separated list of [GeoJson files|base URI>graph name] to load into dataset with graph name optional. 'properties' and foreign members will be included but only string, number and boolean primitives. 'uri' can be used on Feature or Geometry for explicit URI else 'id' will be used when present. Geometry supports 'srsURI' to change SRS from GeoJSON default (CRS84).", validateWith = GeoJsonFileParameter.class, listConverter = GeoJsonFileParameter.class, order = 17)
+    private List<GeoJsonFileBaseGraph> geoJsonFiles = new ArrayList<>();
+
+    //19) Help
+    @Parameter(names = {"--help", "-h"}, description = "Application help. @path/to/file can be used to submit parameters in a file.", help = true, order = 18)
     private boolean help = false;
 
     public int getPort() {
@@ -187,12 +191,16 @@ public class ArgsConfig {
         return spatialIndexFile;
     }
 
+    public List<GeoJsonFileBaseGraph> getGeoJsonFiles() {
+        return geoJsonFiles;
+    }
+
     public boolean isHelp() {
         return help;
     }
 
     public String getSummary() {
-        return "port=" + port + ", datsetName=" + datsetName + ", loopbackOnly=" + loopbackOnly + ", updateAllowed=" + updateAllowed + ", inference=" + inference + ", applyDefaultGeometry=" + applyDefaultGeometry + ", validateGeometryLiteral=" + validateGeometryLiteral + ", convertGeoPredicates=" + convertGeoPredicates + ", removeGeoPredicates=" + removeGeoPredicates + ", queryRewrite=" + queryRewrite + ", tdbFile=" + tdbFile + ", fileGraphFormats=" + fileGraphFormats + ", fileGraphDelimiters=" + fileGraphDelimiters + ", indexEnabled=" + indexEnabled + ", indexSizes=" + indexSizes + ", indexExpiries=" + indexExpiries + ", spatialIndexFile=" + spatialIndexFile + ", help=" + help;
+        return "port=" + port + ", datsetName=" + datsetName + ", loopbackOnly=" + loopbackOnly + ", updateAllowed=" + updateAllowed + ", inference=" + inference + ", applyDefaultGeometry=" + applyDefaultGeometry + ", validateGeometryLiteral=" + validateGeometryLiteral + ", convertGeoPredicates=" + convertGeoPredicates + ", removeGeoPredicates=" + removeGeoPredicates + ", queryRewrite=" + queryRewrite + ", tdbFile=" + tdbFile + ", fileGraphFormats=" + fileGraphFormats + ", fileGraphDelimiters=" + fileGraphDelimiters + ", indexEnabled=" + indexEnabled + ", indexSizes=" + indexSizes + ", indexExpiries=" + indexExpiries + ", spatialIndexFile=" + spatialIndexFile + ", geoJsonFiles=" + geoJsonFiles + ", help=" + help;
     }
 
     @Override

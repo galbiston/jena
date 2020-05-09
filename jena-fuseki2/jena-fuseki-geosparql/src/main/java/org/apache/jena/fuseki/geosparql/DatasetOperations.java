@@ -26,11 +26,13 @@ import java.util.List;
 import org.apache.jena.fuseki.geosparql.cli.ArgsConfig;
 import org.apache.jena.fuseki.geosparql.cli.FileGraphDelimiter;
 import org.apache.jena.fuseki.geosparql.cli.FileGraphFormat;
+import org.apache.jena.fuseki.geosparql.cli.GeoJsonFileBaseGraph;
 import org.apache.jena.geosparql.configuration.GeoSPARQLConfig;
 import org.apache.jena.geosparql.configuration.GeoSPARQLOperations;
 import org.apache.jena.geosparql.implementation.datatype.GMLDatatype;
 import org.apache.jena.geosparql.implementation.datatype.GeometryDatatype;
 import org.apache.jena.geosparql.implementation.datatype.WKTDatatype;
+import org.apache.jena.geosparql.implementation.parsers.geojson.GeoJsonSupport;
 import org.apache.jena.geosparql.spatial.SpatialIndexException;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
@@ -204,6 +206,45 @@ public class DatasetOperations {
                     targetModel.add(model);
                     dataset.commit();
                     LOGGER.info("Reading Tabular - Completed - File: {}, Graph: {},  Delimiter: {}", tabFile, graphName, delimiter);
+                }
+            } catch (Exception ex) {
+                throw new DatasetException("Read Error: " + ex.getMessage(), ex);
+            } finally {
+                dataset.end();
+            }
+        }
+
+        if (!argsConfig.getGeoJsonFiles().isEmpty()) {
+            try {
+                List<GeoJsonFileBaseGraph> geoJsonFiles = argsConfig.getGeoJsonFiles();
+
+                for (GeoJsonFileBaseGraph geoJsonFile : geoJsonFiles) {
+                    File file = geoJsonFile.getGeoJsonFile();
+                    String baseURI = geoJsonFile.getBaseURI();
+                    String graphName = geoJsonFile.getGraphName();
+
+                    LOGGER.info("Reading GeoJSON - Started - File: {}, Base URI: {}, Graph: {}, Delimiter: {}", file, baseURI, graphName);
+
+                    dataset.begin(ReadWrite.WRITE);
+
+                    //Obtain the target model
+                    Model targetModel;
+                    if (graphName.isEmpty()) {
+                        targetModel = dataset.getDefaultModel();
+                    } else {
+                        if (dataset.containsNamedModel(graphName)) {
+                            targetModel = dataset.getNamedModel(graphName);
+                        } else {
+                            targetModel = ModelFactory.createDefaultModel();
+                            dataset.addNamedModel(graphName, targetModel);
+                        }
+                    }
+
+                    //Load file and add to target model.
+                    Model model = GeoJsonSupport.convertFile(file, baseURI);
+                    targetModel.add(model);
+                    dataset.commit();
+                    LOGGER.info("Reading GeoJSON - Completed - File: {}, Base URI: {}, Graph: {}, Delimiter: {}", file, baseURI, graphName);
                 }
             } catch (Exception ex) {
                 throw new DatasetException("Read Error: " + ex.getMessage(), ex);
