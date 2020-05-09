@@ -281,7 +281,6 @@ public class GeoJsonSupportTest {
      */
     @Test
     public void testConvert() {
-        System.out.println("convert");
         JsonObject rootObject = new JsonObject();
         rootObject.put("type", "FeatureCollection");
 
@@ -303,9 +302,6 @@ public class GeoJsonSupportTest {
         boolean testInConverted = convertedModel.containsAll(testModel);
         boolean convertedInTest = convertedModel.containsAll(testModel);
         boolean result = testInConverted && convertedInTest;
-
-        System.out.println("Exp: " + testModel);
-        System.out.println("Res: " + convertedModel);
 
         assertEquals(expResult, result);
     }
