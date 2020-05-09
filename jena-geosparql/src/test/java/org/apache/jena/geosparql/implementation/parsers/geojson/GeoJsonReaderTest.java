@@ -188,6 +188,25 @@ public class GeoJsonReaderTest {
      * Test of extract method, of class GeoJsonReader.
      */
     @Test
+    public void testExtractLineString() {
+
+        String geosonText = "{ \"type\": \"LineString\", \"coordinates\": [[30, 10], [10, 30], [40, 40]] }";
+
+        JsonArray lineString = new JsonArray();
+        lineString.add(buildArrayInt(Arrays.asList(30, 10)));
+        lineString.add(buildArrayInt(Arrays.asList(10, 30)));
+        lineString.add(buildArrayInt(Arrays.asList(40, 40)));
+
+        GeoJsonReader expResult = new GeoJsonReader("LineString", lineString.iterator());
+        GeoJsonReader result = GeoJsonReader.extract(geosonText);
+
+        assertEquals(expResult, result);
+    }
+
+    /**
+     * Test of extract method, of class GeoJsonReader.
+     */
+    @Test
     public void testExtractPolygon() {
 
         String geosonText = "{ \"type\": \"Polygon\", \"coordinates\": [[[30, 10], [40, 40], [20, 40], [10, 20], [30, 10]]] }";
@@ -234,25 +253,6 @@ public class GeoJsonReaderTest {
         polygon.add(hole);
 
         GeoJsonReader expResult = new GeoJsonReader("Polygon", polygon.iterator());
-        GeoJsonReader result = GeoJsonReader.extract(geosonText);
-
-        assertEquals(expResult, result);
-    }
-
-    /**
-     * Test of extract method, of class GeoJsonReader.
-     */
-    @Test
-    public void testExtractLineString() {
-
-        String geosonText = "{ \"type\": \"LineString\", \"coordinates\": [[30, 10], [10, 30], [40, 40]] }";
-
-        JsonArray lineString = new JsonArray();
-        lineString.add(buildArrayInt(Arrays.asList(30, 10)));
-        lineString.add(buildArrayInt(Arrays.asList(10, 30)));
-        lineString.add(buildArrayInt(Arrays.asList(40, 40)));
-
-        GeoJsonReader expResult = new GeoJsonReader("LineString", lineString.iterator());
         GeoJsonReader result = GeoJsonReader.extract(geosonText);
 
         assertEquals(expResult, result);
@@ -419,8 +419,6 @@ public class GeoJsonReaderTest {
         GeoJsonReader expResult = new GeoJsonReader("GeometryCollection", collection.iterator());
         GeoJsonReader result = GeoJsonReader.extract(geosonText);
 
-        System.out.println("Exp: " + expResult);
-        System.out.println("Res: " + result);
         assertEquals(expResult, result);
     }
 
