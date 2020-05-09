@@ -29,6 +29,7 @@ import org.apache.jena.geosparql.implementation.DimensionInfo;
 import org.apache.jena.geosparql.implementation.jts.CoordinateSequenceDimensions;
 import org.apache.jena.geosparql.implementation.jts.CustomCoordinateSequence;
 import org.apache.jena.geosparql.implementation.jts.CustomGeometryFactory;
+import org.apache.jena.geosparql.implementation.vocabulary.SRS_URI;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
@@ -164,6 +165,20 @@ public class GeoJsonReaderTest {
         Iterator<JsonValue> point3 = buildArrayDouble(Arrays.asList(11.0, 12.0, 8.0)).iterator();
         String geosonText = "{ \"type\": \"Point\", \"coordinates\": [11.0, 12.0, 8.0] }";
         GeoJsonReader expResult = new GeoJsonReader("Point", point3);
+        GeoJsonReader result = GeoJsonReader.extract(geosonText);
+
+        assertEquals(expResult, result);
+    }
+
+    /**
+     * Test of extract method, of class GeoJsonReader.
+     */
+    @Test
+    public void testExtractPoint_SRS_URI() {
+
+        Iterator<JsonValue> point3 = buildArrayDouble(Arrays.asList(11.0, 12.0, 8.0)).iterator();
+        String geosonText = "{ \"type\": \"Point\", \"coordinates\": [11.0, 12.0, 8.0], \"srsURI\": \"http://www.opengis.net/def/crs/EPSG/0/27700\" }";
+        GeoJsonReader expResult = new GeoJsonReader("Point", point3, SRS_URI.OSGB36_CRS);
         GeoJsonReader result = GeoJsonReader.extract(geosonText);
 
         assertEquals(expResult, result);

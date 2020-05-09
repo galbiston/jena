@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 import org.apache.jena.atlas.json.JSON;
 import org.apache.jena.atlas.json.JsonArray;
+import org.apache.jena.atlas.json.JsonException;
 import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.atlas.json.JsonValue;
 import org.apache.jena.datatypes.DatatypeFormatException;
@@ -61,6 +62,11 @@ import org.locationtech.jts.geom.Polygon;
 public class GeoJsonReader implements ParserReader {
 
     private static final GeometryFactory GEOMETRY_FACTORY = CustomGeometryFactory.theInstance();
+    private static final String DEFAULT_SRS_URI = SRS_URI.DEFAULT_WKT_CRS84;
+    private static final String COORDINATES_PROP = "coordinates";
+    private static final String GEOMETRIES_PROP = "geometries";
+    private static final String TYPE_PROP = "type";
+    private static final String SRS_URI_PROP = "srsURI";
 
     private final CoordinateSequenceDimensions dims;
     private final Geometry geometry;
@@ -68,10 +74,14 @@ public class GeoJsonReader implements ParserReader {
     private final String srsURI;
 
     protected GeoJsonReader(String geometryType, Iterator<JsonValue> coordinates) {
+        this(geometryType, coordinates, DEFAULT_SRS_URI);
+    }
+
+    protected GeoJsonReader(String geometryType, Iterator<JsonValue> coordinates, String srsURI) {
         this.geometry = buildGeometry(geometryType, coordinates);
         this.dims = CoordinateSequenceDimensions.find(geometry.getCoordinate());
         this.dimensionInfo = new DimensionInfo(dims, geometry.getDimension());
-        this.srsURI = SRS_URI.DEFAULT_WKT_CRS84;
+        this.srsURI = srsURI;
     }
 
     @Override
@@ -268,17 +278,17 @@ public class GeoJsonReader implements ParserReader {
         while (coordinates.hasNext()) {
 
             JsonObject jsonObject = coordinates.next().getAsObject();
-            if (!jsonObject.hasKey("type")) {
+            if (!jsonObject.hasKey(TYPE_PROP)) {
                 throw new DatatypeFormatException("GeoJSON object does not have 'type' property.");
             }
 
-            String type = jsonObject.getString("type");
+            String type = jsonObject.getString(TYPE_PROP);
 
-            if (!jsonObject.hasKey("coordinates")) {
+            if (!jsonObject.hasKey(COORDINATES_PROP)) {
                 throw new DatatypeFormatException("GeoJSON object does not have 'coordinates' or 'geometries' property.");
             }
 
-            Iterator<JsonValue> subCoordinates = jsonObject.getIterator("coordinates");
+            Iterator<JsonValue> subCoordinates = jsonObject.getIterator(COORDINATES_PROP);
 
             Geometry subGeometry = buildGeometry(type, subCoordinates);
             geometries.add(subGeometry);
@@ -289,46 +299,62 @@ public class GeoJsonReader implements ParserReader {
 
     public static GeoJsonReader extract(String geometryLiteral) throws DatatypeFormatException {
 
-        // Strip all whitespace.
-        geometryLiteral = geometryLiteral.replace(" ", "");
+        try {
+            // Strip all whitespace.
+            geometryLiteral = geometryLiteral.replace(" ", "");
 
-        // Treat empty string or empty JSON object as an empty point.
-        if (geometryLiteral.isEmpty() || geometryLiteral.equals("{}")) {
-            return new GeoJsonReader("Point", new JsonArray().iterator());
-        }
-
-        // Check there is the minimum JSON object.
-        if (!geometryLiteral.startsWith("{")) {
-            throw new DatatypeFormatException("GeoJSON GeometryLiteral does not start with a brace '{': " + geometryLiteral);
-        } else if (!geometryLiteral.endsWith("}")) {
-            throw new DatatypeFormatException("GeoJSON GeometryLiteral does not end with a brace '}': " + geometryLiteral);
-        }
-
-        JsonObject jsonObject = JSON.parse(geometryLiteral);
-
-        // Check for 'type' property.
-        if (!jsonObject.hasKey("type")) {
-            throw new DatatypeFormatException("GeoJSON GeometryLiteral does not have 'type' property: " + geometryLiteral);
-        }
-        String type = jsonObject.getString("type");
-
-        // Extract 'coordinates' or 'geometries' property.
-        Iterator<JsonValue> coordinates;
-        if (type.equals("GeometryCollection")) {
-            if (jsonObject.hasKey("geometries")) {
-                coordinates = jsonObject.getIterator("geometries");
-            } else {
-                throw new DatatypeFormatException("GeoJSON GeometryLiteral GeometryCollection not have 'geometries' property: " + geometryLiteral);
+            // Treat empty string or empty JSON object as an empty point.
+            if (geometryLiteral.isEmpty() || geometryLiteral.equals("{}")) {
+                return new GeoJsonReader("Point", new JsonArray().iterator(), DEFAULT_SRS_URI);
             }
-        } else {
-            if (jsonObject.hasKey("coordinates")) {
-                coordinates = jsonObject.getIterator("coordinates");
-            } else {
-                throw new DatatypeFormatException("GeoJSON GeometryLiteral does not have 'coordinates' property: " + geometryLiteral);
-            }
-        }
 
-        return new GeoJsonReader(type, coordinates);
+            // Check there is the minimum JSON object.
+            if (!geometryLiteral.startsWith("{")) {
+                throw new DatatypeFormatException("GeoJSON GeometryLiteral does not start with a brace '{': " + geometryLiteral);
+            } else if (!geometryLiteral.endsWith("}")) {
+                throw new DatatypeFormatException("GeoJSON GeometryLiteral does not end with a brace '}': " + geometryLiteral);
+            }
+
+            JsonObject jsonObject = JSON.parse(geometryLiteral);
+
+            // Check for 'type' property.
+            if (!jsonObject.hasKey(TYPE_PROP)) {
+                throw new DatatypeFormatException("GeoJSON GeometryLiteral does not have 'type' property: " + geometryLiteral);
+            }
+            String type = jsonObject.getString(TYPE_PROP);
+
+            // Extract 'coordinates' or 'geometries' property.
+            Iterator<JsonValue> coordinates;
+            if (type.equals("GeometryCollection")) {
+                if (jsonObject.hasKey(GEOMETRIES_PROP)) {
+                    coordinates = jsonObject.getIterator(GEOMETRIES_PROP);
+                } else {
+                    throw new DatatypeFormatException("GeoJSON GeometryLiteral GeometryCollection not have 'geometries' property: " + geometryLiteral);
+                }
+            } else {
+                if (jsonObject.hasKey(COORDINATES_PROP)) {
+                    coordinates = jsonObject.getIterator(COORDINATES_PROP);
+                } else {
+                    throw new DatatypeFormatException("GeoJSON GeometryLiteral does not have 'coordinates' property: " + geometryLiteral);
+                }
+            }
+
+            // Allow a srsURI property to be specified as a foreign member in the geometry.
+            String srsURI;
+            if (jsonObject.hasKey(SRS_URI_PROP)) {
+                srsURI = jsonObject.getString(SRS_URI_PROP);
+                // Use default SRS if empty value;
+                if (srsURI.isEmpty()) {
+                    srsURI = DEFAULT_SRS_URI;
+                }
+            } else {
+                srsURI = DEFAULT_SRS_URI;
+            }
+
+            return new GeoJsonReader(type, coordinates, srsURI);
+        } catch (JsonException exception) {
+            throw new DatatypeFormatException("GeoJSON invalid format: " + exception.getLocalizedMessage());
+        }
     }
 
     @Override
