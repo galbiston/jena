@@ -125,7 +125,7 @@ public class GeoJsonSupport {
                     Info featureInfo = extractInfo(featureObj, baseURI, featureCounter);
                     String featureID = featureInfo.id;
                     String featureURI = featureInfo.uri;
-                    featureCounter = featureInfo.counter;
+                    featureCounter++;
 
                     Resource feature = model.createResource(featureURI);
                     feature.addProperty(RDF.type, Geo.FEATURE_RES);
@@ -164,7 +164,7 @@ public class GeoJsonSupport {
                             Property prop = model.createProperty(baseURI, propObj.getKey());
                             JsonValue value = propObj.getValue();
                             try {
-                                Literal literal = createJsonLiteral(value);
+                                Literal literal = extractJson(value);
                                 feature.addLiteral(prop, literal);
                             } catch (GeoJsonException ex) {
                                 throw new GeoJsonException(ex.getLocalizedMessage() + " - " + featureID);
@@ -177,7 +177,7 @@ public class GeoJsonSupport {
                         String foreignName = foreignObj.getKey();
                         if (!foreignName.equals(ID_KEY) && !foreignName.equals(TYPE_KEY) && !foreignName.equals(PROPERTIES_KEY) && !foreignName.equals(GEOMETRY_KEY)) {
                             try {
-                                Literal literal = createJsonLiteral(foreignObj.getValue());
+                                Literal literal = extractJson(foreignObj.getValue());
                                 Property prop = model.createProperty(baseURI, foreignName);
                                 feature.addLiteral(prop, literal);
                             } catch (GeoJsonException ex) {
@@ -219,7 +219,6 @@ public class GeoJsonSupport {
 
         } else {
             id = FEATURE_KEY + counter;
-            counter++;
         }
         if (object.hasKey(URI_KEY)) {
             uri = object.getString(URI_KEY);
@@ -227,10 +226,10 @@ public class GeoJsonSupport {
             uri = baseURI + id;
         }
 
-        return new Info(id, uri, counter);
+        return new Info(id, uri);
     }
 
-    private static Literal createJsonLiteral(JsonValue value) throws GeoJsonException {
+    private static Literal extractJson(JsonValue value) throws GeoJsonException {
         if (value.isBoolean()) {
             return ResourceFactory.createTypedLiteral(value.getAsBoolean().value());
         } else if (value.isNumber()) {
@@ -246,12 +245,10 @@ public class GeoJsonSupport {
 
         public final String id;
         public final String uri;
-        public final int counter;
 
-        public Info(String id, String uri, int counter) {
+        public Info(String id, String uri) {
             this.id = id;
             this.uri = uri;
-            this.counter = counter;
         }
     }
 

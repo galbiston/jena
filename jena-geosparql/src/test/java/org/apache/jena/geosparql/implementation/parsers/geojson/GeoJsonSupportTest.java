@@ -157,7 +157,7 @@ public class GeoJsonSupportTest {
 
     private void addLineStringResource(Model model) {
 
-        Resource feature = model.createResource(BASE_URI + "Feature0");
+        Resource feature = model.createResource(BASE_URI + "Feature1");
         feature.addProperty(RDF.type, Geo.FEATURE_RES);
         Literal prop1Lit = ResourceFactory.createTypedLiteral("0.0", XSDDatatype.XSDdecimal);
         feature.addLiteral(ResourceFactory.createProperty(BASE_URI, "prop1"), prop1Lit);
@@ -240,13 +240,13 @@ public class GeoJsonSupportTest {
 
     private void addPolygonResource(Model model) {
 
-        Resource feature = model.createResource(BASE_URI + "Feature1");
+        Resource feature = model.createResource(BASE_URI + "Feature2");
         feature.addProperty(RDF.type, Geo.FEATURE_RES);
         feature.addLiteral(ResourceFactory.createProperty(BASE_URI, "prop0"), "value0");
         Literal prop1Lit = ResourceFactory.createTypedLiteral("0.5", XSDDatatype.XSDdecimal);
         feature.addLiteral(ResourceFactory.createProperty(BASE_URI, "prop1"), prop1Lit);
 
-        Resource geometry = model.createResource(BASE_URI + "Feature1-Geometry");
+        Resource geometry = model.createResource(BASE_URI + "Feature2-Geometry");
         geometry.addProperty(RDF.type, Geo.GEOMETRY_RES);
         feature.addProperty(Geo.HAS_GEOMETRY_PROP, geometry);
         feature.addProperty(Geo.HAS_DEFAULT_GEOMETRY_PROP, geometry);
