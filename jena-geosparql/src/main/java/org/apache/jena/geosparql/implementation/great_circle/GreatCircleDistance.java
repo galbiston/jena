@@ -103,7 +103,7 @@ public class GreatCircleDistance {
         double b = Math.pow(Math.cos(lat1Rad) * Math.sin(lat2Rad) - Math.sin(lat1Rad) * Math.cos(lat2Rad) * Math.cos(diffLonRad), 2);
 
         double c = Math.sqrt(a + b);
-        double d = Math.abs(Math.sin(lat1Rad) * Math.sin(lat2Rad) + Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.cos(diffLonRad));
+        double d = Math.sin(lat1Rad) * Math.sin(lat2Rad) + Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.cos(diffLonRad);
 
         double e = Math.atan(c / d);
 
