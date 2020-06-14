@@ -27,8 +27,10 @@ import org.junit.runners.Suite;
     TestNTriplesStarParse.class,
     TestTrigStarParse.class,
     TestTurtleStarParse.class,
-    TestSPARQLStarParse.class
-    //See also RDF_Star_Scripts run from JUnit3-centric ARQTestSuite 
+    TestSPARQLStarParse.class,
+    TestSPARQLStarExtra.class
+
+    //See also TC_Scripted SPARQL-Star/manifest.ttl which run from JUnit3-centric ARQTestSuite 
 })
 public class TS_RDF_Star {
 }

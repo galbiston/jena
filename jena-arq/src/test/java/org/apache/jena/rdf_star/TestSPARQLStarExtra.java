@@ -16,25 +16,25 @@
  * limitations under the License.
  */
 
-package org.apache.jena.tdb2.store;
+package org.apache.jena.rdf_star;
 
-import junit.framework.TestSuite;
-import org.apache.jena.tdb2.ConfigTest;
-import org.apache.jena.tdb2.junit.TestFactoryTDB;
-import org.junit.runner.RunWith;
-import org.junit.runners.AllTests;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetFormatter;
+import org.apache.jena.riot.resultset.rw.ResultsReader;
+import org.junit.Test;
 
-/** Scripted test generation */
+/** 
+ * Odds and ends for SPARQL*. 
+ */
+public class TestSPARQLStarExtra {
 
-@RunWith(AllTests.class)
-public class TestSuiteGraphTDB extends TestSuite
-{
-    static public TestSuite suite() { return new TestSuiteGraphTDB(); }
+    private static String FILES = "testing/ARQ/RDF-Star/Other/";
 
-    private TestSuiteGraphTDB()
-    {
-        super("TDB-Scripts");
-        String manifestMain = ConfigTest.getTestingDataRoot()+"/manifest.ttl";
-        TestFactoryTDB.make(this, manifestMain, "TDB-");
+    // RDF4J format JSON results.
+    // It uses "s", "p" and "o" for the RDF term results. 
+    @Test public void parse_alt() {
+        String x = FILES+"alternate-results.srj";
+        ResultSet rs = ResultsReader.create().read(x);
+        ResultSetFormatter.consume(rs);
     }
 }
