@@ -17,6 +17,9 @@
  */
 package org.apache.jena.riot.writer;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
@@ -32,7 +35,6 @@ import com.github.jsonldjava.utils.JsonUtils;
 
 import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.atlas.json.JsonString;
-import org.apache.jena.atlas.junit.BaseTest;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.JsonLDWriteContext;
@@ -45,9 +47,8 @@ import org.apache.jena.sparql.util.Context;
 import org.apache.jena.sparql.vocabulary.FOAF;
 import org.apache.jena.vocabulary.RDF;
 import org.junit.Test;
-import org.slf4j.LoggerFactory;
 
-public class TestJsonLDWriter extends BaseTest {
+public class TestJsonLDWriter {
 
     /**
      * Checks that JSON-LD RDFFormats supposed to be pretty are pretty
@@ -248,9 +249,9 @@ public class TestJsonLDWriter extends BaseTest {
     /**
      * Checks that one can pass a context defined by its URI
      * 
-     * -- well NO, this doesn't work
      */
-    @Test public final void testContextByUri() {
+    @Test
+    public final void testContextByUri() {
         Model m = ModelFactory.createDefaultModel();
         String ns = "http://schema.org/";
         Resource s = m.createResource();
@@ -260,33 +261,13 @@ public class TestJsonLDWriter extends BaseTest {
 
         // we can pass an uri in the context, as a quoted string (it is a JSON string)
         JsonLDWriteContext jenaContext = new JsonLDWriteContext();
-        try {
-            jenaContext.set(JsonLDWriter.JSONLD_CONTEXT, "{\"@context\" : \"http://schema.org/\"}");
-            String jsonld = toString(m, RDFFormat.JSONLD, jenaContext);
-            // check it parses ok
-            Model m2 = parse(jsonld);
-
-            // assertTrue(m2.isIsomorphicWith(m)); // It should be the case, but no.
-
-        } catch (Throwable e) {
-            // maybe test run in a setting without external connectivity - not a real problem
-            String mess = e.getMessage();
-            if ((mess != null) && (mess.contains("loading remote context failed"))) {
-                LoggerFactory.getLogger(getClass()).info(mess);
-                e.printStackTrace();
-            } else {
-                throw e;
-            }
-        }
-
-        // But anyway, that's not what we want to do:
-        // there's no point in passing the uri of a context to have it dereferenced by jsonld-java
-        // (this is for a situation where one would want to parse a jsonld file containing a context defined by a uri)
-        // What we want is to pass a context to jsonld-java (in order for json-ld java to produce the correct jsonld output)
-        // and then we want to replace the @context in the output by "@context":"ourUri"
-
-        // How would we do that? see testSubstitutingContext()
+        jenaContext.setJsonLDContext("{\"@context\" : \"http://schema.org/\"}");
+        String jsonld = toString(m, RDFFormat.JSONLD, jenaContext);
+        // check it parses ok
+        Model m2 = parse(jsonld);
+        assertTrue(m2.isIsomorphicWith(m));
     }
+
 
 
     /**

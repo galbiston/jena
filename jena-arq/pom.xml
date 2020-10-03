@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.jena</groupId>
     <artifactId>jena</artifactId>
-    <version>3.16.0-SNAPSHOT</version>
+    <version>3.17.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
 
@@ -41,14 +41,14 @@
     <dependency>
       <groupId>org.apache.jena</groupId>
       <artifactId>jena-core</artifactId>
-      <version>3.16.0-SNAPSHOT</version>
+      <version>3.17.0-SNAPSHOT</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.jena</groupId>
       <artifactId>jena-core</artifactId>
       <classifier>tests</classifier>
-      <version>3.16.0-SNAPSHOT</version>
+      <version>3.17.0-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
 
@@ -56,14 +56,14 @@
       <groupId>org.apache.jena</groupId>
       <artifactId>jena-base</artifactId>
       <classifier>tests</classifier>
-      <version>3.16.0-SNAPSHOT</version>
+      <version>3.17.0-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.apache.jena</groupId>
       <artifactId>jena-shaded-guava</artifactId>
-      <version>3.16.0-SNAPSHOT</version>
+      <version>3.17.0-SNAPSHOT</version>
     </dependency>
 
     <dependency>
@@ -109,6 +109,18 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.graalvm.js</groupId>
+      <artifactId>js</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.graalvm.js</groupId>
+      <artifactId>js-scriptengine</artifactId>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -162,13 +174,13 @@
         <configuration>
           <includes>
             <!--
-                The test collections TC_General, TC_Riot, TC_Atlas
+                The test collections TC_ARQ, TC_Riot, TC_Atlas_ARQ
                 are development support that collect the relevant
                 tests for partial testing during development.
+                TC_Examples does not run in the the build.
             -->
             <include>**/TS_*.java</include>
-            <include>**/TC_Scripted.java</include>
-            <include>**/TC_DAWG.java</include>
+            <include>**/Scripts_*.java</include>
           </includes>
         </configuration>
       </plugin>

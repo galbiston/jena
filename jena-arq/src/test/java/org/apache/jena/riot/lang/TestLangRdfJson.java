@@ -18,10 +18,12 @@
 
 package org.apache.jena.riot.lang;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.ByteArrayInputStream ;
 import java.io.StringReader ;
 
-import org.apache.jena.atlas.junit.BaseTest ;
 import org.apache.jena.atlas.lib.StrUtils ;
 import org.apache.jena.graph.Graph ;
 import org.apache.jena.rdf.model.Model ;
@@ -33,10 +35,10 @@ import org.apache.jena.riot.RDFLanguages ;
 import org.apache.jena.riot.system.RiotLib;
 import org.apache.jena.riot.system.StreamRDFLib ;
 import org.apache.jena.riot.tokens.Tokenizer ;
-import org.apache.jena.riot.tokens.TokenizerFactory ;
+import org.apache.jena.riot.tokens.TokenizerText;
 import org.junit.Test ;
 
-public class TestLangRdfJson extends BaseTest
+public class TestLangRdfJson
 {
 	@Test
 	public void rdfjson_get_jena_reader()
@@ -445,7 +447,7 @@ public class TestLangRdfJson extends BaseTest
 	public void rdfjson_invalid_tokenizer() {
 		byte b[] = StrUtils.asUTF8bytes("") ;
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		Tokenizer tokenizer = TokenizerFactory.makeTokenizerUTF8(in) ;
+		Tokenizer tokenizer = TokenizerText.create().source(in).build() ;
         StreamRDFCounting sink = StreamRDFLib.count() ;
 		LangRDFJSON parser = RiotParsers.createParserRdfJson(tokenizer, sink, RiotLib.dftProfile()) ;
 	}

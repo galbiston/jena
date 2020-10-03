@@ -21,16 +21,19 @@ package org.apache.jena.riot.lang;
 import static org.apache.jena.riot.system.ErrorHandlerFactory.errorHandlerNoLogging ;
 import static org.apache.jena.riot.system.ErrorHandlerFactory.getDefaultErrorHandler ;
 import static org.apache.jena.riot.system.ErrorHandlerFactory.setDefaultErrorHandler ;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.StringReader ;
 
-import org.apache.jena.atlas.junit.BaseTest ;
 import org.apache.jena.graph.Graph ;
 import org.apache.jena.graph.Triple ;
 import org.apache.jena.rdf.model.Model ;
 import org.apache.jena.rdf.model.ModelFactory ;
 import org.apache.jena.rdf.model.Property ;
 import org.apache.jena.rdf.model.Resource ;
+import org.apache.jena.riot.ErrorHandlerTestLib.ExError;
 import org.apache.jena.riot.ErrorHandlerTestLib.ExFatal ;
 import org.apache.jena.riot.ErrorHandlerTestLib.ExWarning ;
 import org.apache.jena.riot.Lang ;
@@ -42,7 +45,7 @@ import org.junit.AfterClass ;
 import org.junit.BeforeClass ;
 import org.junit.Test ;
 
-public class TestLangTurtle extends BaseTest
+public class TestLangTurtle
 {
     @Test public void blankNodes1()
     {
@@ -155,7 +158,7 @@ public class TestLangTurtle extends BaseTest
     @Test(expected=ExFatal.class)
     public void errorBadDatatype()          { parse("<p> <p> 'q'^^.") ; }
     
-    @Test(expected=ExFatal.class)
+    @Test(expected=ExError.class)
     public void errorBadURI_1()
     { parse("<http://example/a b> <http://example/p> 123 .") ; }
 
@@ -169,10 +172,10 @@ public class TestLangTurtle extends BaseTest
     { parse("<http://example/a%Aab> <http://example/p> 123 .") ; }
 
     // Bad URIs
-    @Test (expected=ExFatal.class)
+    @Test (expected=ExError.class)
     public void errorBadURI_4()     { parse("@prefix ex:  <bad iri> .  ex:s ex:p 123 ") ; }
     
-    @Test (expected=ExFatal.class)
+    @Test (expected=ExError.class)
     public void errorBadURI_5()     { parse("<x> <p> 'number'^^<bad uri> ") ; }
     
     @Test (expected=ExFatal.class)

@@ -18,8 +18,12 @@
 
 package org.apache.jena.atlas.logging;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
+import org.apache.jena.atlas.AtlasException;
 import org.slf4j.Logger;
 
 /**
@@ -35,7 +39,8 @@ public class LogCtl {
     private static final boolean hasLog4j2 = hasClass("org.apache.logging.slf4j.Log4jLoggerFactory");
     private static final boolean hasLog4j1 = hasClass("org.slf4j.impl.Log4jLoggerFactory");
     private static final boolean hasJUL    = hasClass("org.slf4j.impl.JDK14LoggerFactory");
-    // JUL always present but needs slf4j adpater.
+    // JUL always present but needs slf4j adapter.
+    // Put per-logging system code in separate classes to avoid needing them on the classpath.
 
     private static boolean hasClass(String className) {
         try {
@@ -50,8 +55,8 @@ public class LogCtl {
         setLevel(logger.getName(), level);
     }
 
-    static public void setLevel(Class<? > logger, String level) {
-        setLevel(logger.getName(), level);
+    static public void setLevel(Class<? > cls, String level) {
+        setLevel(cls.getName(), level);
     }
 
     static public void setLevel(Logger logger, String level) {
@@ -137,8 +142,6 @@ public class LogCtl {
         else if ( levelName.equalsIgnoreCase("OFF") )
             level = org.apache.logging.log4j.Level.OFF;
         try {
-            // "try" : If log4j2 core is not on the path (everything else is
-            // log4j-api).
             if ( !logger.equals("") )
                 org.apache.logging.log4j.core.config.Configurator.setLevel(logger, level);
             else
@@ -250,7 +253,7 @@ public class LogCtl {
      * when no configuration is setup; output is to stdout.
      * <p>
      * Ideally, initialize the logging provider using the mechanism specific to that provider.
-     * For example, see the <a href="https://logging.apache.org/log4j/2.x/manual/configuration.html">log4j2 configuration documentation</a>.  
+     * For example, see the <a href="https://logging.apache.org/log4j/2.x/manual/configuration.html">log4j2 configuration documentation</a>.
      * <p>
      * To set application logging, choose one of:
      * <ul>
@@ -296,7 +299,7 @@ public class LogCtl {
 
     // ---- log4j2.
 
-    /** The log4j2 configuration file - must be a file or URL, not a classpath java resource */ 
+    /** The log4j2 configuration file - must be a file or URL, not a classpath java resource */
     public static final String log4j2ConfigProperty = "log4j.configurationFile";
 
     private static final String[] log4j2files = {"log4j2.properties", "log4j2.xml"};
@@ -309,18 +312,18 @@ public class LogCtl {
     public static void setLog4j2() {
         if ( ! isSetLog4j2property() ) {
             setLog4j2property();
-            if ( isSetLog4j2property() ) 
+            if ( isSetLog4j2property() )
                 return;
             // Nothing found - built-in default.
-            LogCmd.resetLogging(LogCmd.log4j2setup);
+            LogCtlLog4j2.resetLogging(LogCtlLog4j2.log4j2setup);
         }
     }
 
-    /*package*/ static boolean isSetLog4j2property() {
-        return System.getProperty(log4j2ConfigProperty) != null ;
+    /* package */ static boolean isSetLog4j2property() {
+        return System.getProperty(log4j2ConfigProperty) != null;
     }
-    
-    /** Set log4j, looking for files */ 
+
+    /** Set log4j, looking for files */
     /*package*/ static void setLog4j2property() {
         if ( isSetLog4j2property() )
             return;
@@ -332,10 +335,10 @@ public class LogCtl {
             }
         }
     }
-    
+
     // ---- java.util.logging - because that's always present.
     // Need: org.slf4j:slf4j-jdk14
-    
+
     private static String JUL_PROPERTY      = "java.util.logging.configuration";
     /**
      * Setup java.util.logging if it has not been set before; otherwise do nothing.
@@ -343,6 +346,20 @@ public class LogCtl {
     public static void setJavaLogging() {
         if ( System.getProperty(JUL_PROPERTY) != null )
             return;
-        LogJUL.resetJavaLogging();
+        LogCtlJUL.resetJavaLogging();
+    }
+
+    /**
+     * Setup java.util.logging with the configuration from a file.
+     * @param filename
+     */
+    public static void setJavaLogging(String filename) {
+        try {
+            InputStream details = new FileInputStream(filename);
+            details = new BufferedInputStream(details);
+            LogCtlJUL.readJavaLoggingConfiguration(details);
+        } catch (Exception ex) {
+            throw new AtlasException(ex);
+        }
     }
 }

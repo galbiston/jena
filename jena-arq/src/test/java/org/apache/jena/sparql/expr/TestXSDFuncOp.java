@@ -18,9 +18,10 @@
 
 package org.apache.jena.sparql.expr;
 
+import static org.junit.Assert.*;
+
 import java.math.BigDecimal;
 
-import org.apache.jena.atlas.junit.BaseTest ;
 import org.apache.jena.datatypes.xsd.XSDDatatype ;
 import org.apache.jena.graph.Node ;
 import org.apache.jena.graph.NodeFactory ;
@@ -30,7 +31,7 @@ import org.apache.jena.sparql.sse.SSE ;
 import org.junit.Assert ;
 import org.junit.Test ;
 
-public class TestXSDFuncOp extends BaseTest
+public class TestXSDFuncOp
 {
     private static final double accuracyExact_D = 0.0d ;
     private static final double accuracyExact_F = 0.0d ;
@@ -261,16 +262,57 @@ public class TestXSDFuncOp extends BaseTest
         assertEquals("Wrong result", 12.5, r.getDecimal().doubleValue(), accuracyExact_D) ;
     }
 
+    private static String divideDecimal(String v1, String v2, String v3) {
+        NodeValue nv1 = NodeValue.makeDecimal(v1) ;
+        NodeValue nv2 = NodeValue.makeDecimal(v2) ;
+        NodeValue nv3 = NodeValue.makeDecimal(v3) ;
+        NodeValue r = XSDFuncOp.numDivide(nv1, nv2) ;
+        assertTrue("Not a decimal: "+r, r.isDecimal()) ;
+        // sameAv (value) test : does not test lexical form or datatype.
+        assertTrue("Wrong result : expected="+r+" : got="+nv3, NodeValue.sameAs(r, nv3));
+        return r.getNode().getLiteralLexicalForm();
+    }
+    
+    @Test public void testDivideDecimal1() {
+        divideDecimal("1", "10", "0.1");
+    }
+    
+    @Test public void testDivideDecimal2() {
+        divideDecimal("1", "2", "0.5");
+    }
+
+    @Test public void testDivideDecimal3() {
+        // Depends on XSDFuncOp.DIVIDE_PRECISION = 24
+        String x = divideDecimal("1", "3", "0.333333333333333333333333");
+        assertEquals("Wrong lexical form length", 26, x.length());
+    }
+
+    @Test public void testDivideDecimal4() {
+        String x = divideDecimal("0", "3", "0");
+        assertEquals("Wrong lexical form", "0.0", x); 
+    }
+
+    // JENA-1943 : If exact, return more than DIVIDE_PRECISION
+    @Test public void testDivideDecimal5() {
+        String x = divideDecimal("1", "10000000000000000000000000", "0.0000000000000000000000001");
+        // More than 2 (for the "0.") plus XSDFuncOp.DIVIDE_PRECISION = 24 
+        assertEquals("Wrong length lexical form", 27, x.length());
+    }
+    
+    // JENA-1943
+    @Test public void testDivideDecimal6() {
+        String x = divideDecimal("1", "10000000000000000000000000000", "0.0000000000000000000000000001");
+        // Exact
+        assertEquals("Wrong length lexical form", 30, x.length());
+    }
+    
     // divide errors
-    @Test public void testDivideByZero1()
-    {
+    @Test(expected=ExprEvalException.class)
+    public void testDivideByZero1()
+    {   
         NodeValue nv1 = NodeValue.makeInteger(1) ;
         NodeValue nv2 = NodeValue.makeInteger(0) ;
-        try {
-            NodeValue r = XSDFuncOp.numDivide(nv1, nv2) ;
-            fail("No expection from .divide") ;
-        } catch (ExprEvalException ex)
-        { }
+        NodeValue r = XSDFuncOp.numDivide(nv1, nv2) ;
     }
     
     @Test public void testDivideByZero2()
@@ -291,6 +333,22 @@ public class TestXSDFuncOp extends BaseTest
         assertTrue("Not a -INF: "+r, r.getDouble()==Double.NEGATIVE_INFINITY) ;
     }
     
+    @Test(expected=ExprEvalException.class)
+    public void testDivideByZero5()
+    {
+        NodeValue nv1 = NodeValue.makeInteger(1) ;
+        NodeValue nv2 = NodeValue.makeDecimal(0) ;
+        NodeValue r = XSDFuncOp.numDivide(nv1, nv2) ;
+    }
+
+    @Test(expected=ExprEvalException.class)
+    public void testDivideByZero6()
+    {
+        NodeValue nv1 = NodeValue.makeDecimal(1) ;
+        NodeValue nv2 = NodeValue.makeDecimal(0) ;
+        NodeValue r = XSDFuncOp.numDivide(nv1, nv2) ;
+    }
+
     @Test public void testSubtractDoubleDecimal()
     {
         NodeValue nv1 = NodeValue.makeDouble(4.5) ;
